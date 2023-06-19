@@ -23,3 +23,4 @@ class Phone(db.Model):
     number2 = db.Column(db.String(20), unique=True, nullable=False)
     is_lost = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    model = db.Column(db.String(100))

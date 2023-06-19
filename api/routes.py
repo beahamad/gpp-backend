@@ -17,6 +17,7 @@ def register_phone():
     imei = data.get('imei')
     number1 = data.get('number1')
     number2 = data.get('number2')
+    model = data.get('model')
 
     # Check if phone IMEI is valid
     if not imei:
@@ -27,7 +28,7 @@ def register_phone():
         return jsonify({'error': 'IMEI already registered'}), 400
 
     # Create new phone for the user
-    phone = Phone(imei=imei, number1=number1, number2=number2, user=current_user)
+    phone = Phone(imei=imei, number1=number1, number2=number2, user=current_user, model=model)
     db.session.add(phone)
     db.session.commit()
 
@@ -71,7 +72,8 @@ def get_profile():
             'imei': phone.imei,
             'number1': phone.number1,
             'number2': phone.number2,
-            'is_lost': phone.is_lost
+            'is_lost': phone.is_lost,
+            'model': phone.model
         } for phone in current_user.phones]
     }
 
