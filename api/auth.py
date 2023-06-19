@@ -94,8 +94,9 @@ def login():
         return jsonify({'error': 'Invalid email or password'}), 401
     
     if not user.confirmed:
+        send_confirmation_email(email, user.confirmation_code)
         return jsonify({'error': 'user not confirmed'}), 401
-
+        
     # Generate access token
     access_token = create_access_token(identity=user.id)
 
