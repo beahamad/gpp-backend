@@ -13,6 +13,7 @@ class User(db.Model):
     confirmation_code = db.Column(db.String(4), nullable=True)
     confirmed = db.Column(db.Boolean, default=False)
     phones = db.relationship('Phone', backref='user', lazy=True)
+    ispolicia = db.Column(db.Boolean, default=False)
 
 class Phone(db.Model):
     __tablename__ = 'phone'

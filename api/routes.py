@@ -78,10 +78,19 @@ def get_profile():
             'number2': phone.number2,
             'is_lost': phone.is_lost,
             'model': phone.model
-        } for phone in current_user.phones]
+        } for phone in current_user.phones],
+        'isPolicia': current_user.ispolicia
     }
 
     return jsonify(profile_data), 200
+
+@user_routes.route('/phone/Losts', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def get_lost_phones():
+
+    phones = Phone.query.filter_by(is_lost = True)
+    return jsonify(phones), 200
 
 @user_routes.route('/profile', methods=['PUT'])
 @jwt_required()
@@ -169,3 +178,5 @@ def report_found_phone():
         return jsonify({'owner_contact': owner_contact}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 401
+
+
