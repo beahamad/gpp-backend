@@ -5,10 +5,12 @@ from flask_jwt_extended import create_access_token
 from app import db
 from models import User
 from utils import is_valid_email, is_valid_cpf
+from flask_cors import cross_origin
 
 auth_routes = Blueprint('auth_routes', __name__)
 
 @auth_routes.route('/register', methods=['POST'])
+@cross_origin()
 def register():
     data = request.get_json()
 
@@ -47,6 +49,7 @@ def register():
     return jsonify({'message': 'Confirmation code sent to your email'}), 201
 
 @auth_routes.route('/confirm', methods=['POST'])
+@cross_origin()
 def confirm_registration():
     data = request.get_json()
 
@@ -79,6 +82,7 @@ def send_confirmation_email(email, confirmation_code):
     send_email(email, subject, message)
 
 @auth_routes.route('/login', methods=['POST'])
+@cross_origin()
 def login():
     data = request.get_json()
 

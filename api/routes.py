@@ -3,10 +3,12 @@ from flask import request, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from email_sender import send_email
 from models import User, Phone
+from flask_cors import cross_origin
 
 user_routes = Blueprint('user_routes', __name__)
 @user_routes.route('/register/phone', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def register_phone():
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
@@ -36,6 +38,7 @@ def register_phone():
 
 @user_routes.route('/remove/phone', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def remove_phone():
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
@@ -58,6 +61,7 @@ def remove_phone():
 
 @user_routes.route('/profile', methods=['GET'])
 @jwt_required()
+@cross_origin()
 def get_profile():
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
@@ -81,6 +85,7 @@ def get_profile():
 
 @user_routes.route('/profile', methods=['PUT'])
 @jwt_required()
+@cross_origin()
 def edit_profile():
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
@@ -105,6 +110,7 @@ def edit_profile():
     return jsonify({'message': 'Profile updated successfully'}), 200
 
 @user_routes.route('/phone/lost', methods=['POST'])
+@cross_origin()
 @jwt_required()
 def mark_phone_as_lost():
     current_user_id = get_jwt_identity()
@@ -129,6 +135,7 @@ def mark_phone_as_lost():
 
 @user_routes.route('/phone/found', methods=['POST'])
 @jwt_required()
+@cross_origin()
 def report_found_phone():
     data = request.get_json()
 
