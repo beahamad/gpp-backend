@@ -32,4 +32,4 @@ if __name__ == '__main__':
     app.register_blueprint(user_routes, url_prefix='/api')
     app.register_blueprint(auth_routes, url_prefix='/api')
 
-    app.run(port = 5000)
+    app.run()
