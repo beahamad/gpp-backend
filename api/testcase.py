@@ -1,6 +1,6 @@
 import unittest
 
-class UnitTest(unittest.TestCase):
+class TestRegisterPhone(unittest.TestCase):
     
     
 if __name__= '__main__':
