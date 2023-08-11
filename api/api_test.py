@@ -53,7 +53,7 @@ class ApiTest(unittest.TestCase):
     #USER_CPF_INVALIDO = {'cpf': "0", 'full_name': "Joao das Neves", "date_of_birth": "01/02/2001", "address": "rua groove", "email": "joaozineves@email.com", "password": "senha32123"}
 
 
-    def test_register(self):
+    def test_register1(self):
 
         #falta colocar o contexto para poder acessar o BD e realizar os testes
         #por algum motivo, ele está considerando isso tudo como apenas um teste
@@ -76,46 +76,60 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(r.status_code, 201)
         self.assertEqual(r.text, '{"message":"Confirmation code sent to your email"}\n')
         #self.assertTrue(User.query.filter_by(cpf=ApiTest.USER_VALIDO["cpf"]).first())
-
-
+        
+    def test_register2(self):
+        usr = gerar_user(ApiTest.CPF_VALIDO, ApiTest.EMAIL_VALIDO)
+        
         #cpf zero
         r = requests.post(ApiTest.REGISTER_URL, json=gerar_user("0", "joaozineves@email.com"))
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.text, '{"error":"Invalid CPF"}\n')
         #self.assertFalse(User.query.filter_by(email="joaozineves@email.com".first()))
-
+        
+    def test_register3(self):
+        usr = gerar_user(ApiTest.CPF_VALIDO, ApiTest.EMAIL_VALIDO)
+        
         #cpf vazio
         r = requests.post(ApiTest.REGISTER_URL, json=gerar_user("", "joaozineves@email.com"))
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.text, '{"error":"Invalid CPF"}\n')
         #self.assertFalse(User.query.filter_by(email="joaozineves@email.com".first()))
         
+    def test_register4(self):
+        usr = gerar_user(ApiTest.CPF_VALIDO, ApiTest.EMAIL_VALIDO)
+        
         #cpf com menos digitos que o normal
         r = requests.post(ApiTest.REGISTER_URL, json=gerar_user("1234567891", "joaozineves@email.com"))
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.text, '{"error":"Invalid CPF"}\n')
         #self.assertFalse(User.query.filter_by(email="joaozineves@email.com".first()))
-
+    
+    def test_register5(self):
+        usr = gerar_user(ApiTest.CPF_VALIDO, ApiTest.EMAIL_VALIDO)
+        
         #cpf com mais digitos que o normal
         r = requests.post(ApiTest.REGISTER_URL, json=gerar_user("123456789101", "joaozineves@email.com"))
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.text, '{"error":"Invalid CPF"}\n')
         #self.assertFalse(User.query.filter_by(email="joaozineves@email.com".first()))
-                         
+        
+    def test_register6(self):
+        usr = gerar_user(ApiTest.CPF_VALIDO, ApiTest.EMAIL_VALIDO)
+        
         #cpf nao validado
         r = requests.post(ApiTest.REGISTER_URL, json=gerar_user("12345678910", "joaozineves@email.com"))
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.text, '{"error":"Invalid CPF"}\n')
         #self.assertFalse(User.query.filter_by(email="joaozineves@email.com".first()))
         
+    def test_register7(self):
+        usr = gerar_user(ApiTest.CPF_VALIDO, ApiTest.EMAIL_VALIDO)
+        
         #cpf repetido
         r = requests.post(ApiTest.REGISTER_URL, json=gerar_user(ApiTest.CPF_VALIDO, "joaozineves@email.com"))
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.text, '{"error":"CPF already registered"}\n')
-        #self.assertFalse(User.query.filter_by(email="joaozineves@email.com".first()))
+        #self.assertFalse(User.query.filter_by(email="joaozineves@email.com".first())) 
         
-                
-
-
 if __name__ == '__main__':
     unittest.main()
