@@ -5,15 +5,17 @@ import secrets
 
 import urllib.parse as up
 from db import DatabaseManager
-from config import DATABASE_URL
+from config import get_uri
 
 
 app = Flask(__name__)
 
-url = up.urlparse(DATABASE_URL)
-up.uses_netloc.append("postgres")
-default_port = '5432'
-app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{url.username}:{url.password}@{url.hostname}:{default_port}/{url.path[1:]}"
+#url = up.urlparse(DATABASE_URL)
+#up.uses_netloc.append("postgres")
+#print(f"postgresql://{params[user]}:{params['password']}@{params['host']}:{params['port']}/{params['database']}")
+app.config['SQLALCHEMY_DATABASE_URI'] = get_uri()
+#default_port = '5432'
+#napp.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{url.username}:{url.password}@{url.hostname}:{default_port}/{url.path[1:]}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 secret_key = secrets.token_hex(32)
