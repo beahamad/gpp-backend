@@ -4,3 +4,4 @@ Flask_JWT_Extended==4.4.4
 flask_sqlalchemy==3.0.3
 psycopg2-binary
 requests==2.25.1
+sqlalchemy_utils==0.41.1
