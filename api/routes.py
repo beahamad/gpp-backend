@@ -115,7 +115,7 @@ def get_lost_phones():
 @user_routes.route('/phone/founds', methods=['GET'])
 @jwt_required()
 @cross_origin()
-def get_lost_phones():
+def get_found_phones():
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
 
