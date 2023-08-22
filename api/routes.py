@@ -66,6 +66,14 @@ def get_profile():
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
 
+    phones = current_user.phones
+
+    phonesLost = []
+
+    for phone in phones:
+        if phone.is_lost:
+            phonesLost.append(phone)
+
     profile_data = {
         'cpf': current_user.cpf,
         'full_name': current_user.full_name,
@@ -78,7 +86,14 @@ def get_profile():
             'number2': phone.number2,
             'is_lost': phone.is_lost,
             'model': phone.model
-        } for phone in current_user.phones],
+        } for phone in phones],
+        'lostPhones': [{
+            'imei': phone.imei,
+            'number1': phone.number1,
+            'number2': phone.number2,
+            'is_lost': phone.is_lost,
+            'model': phone.model
+        }for phone in phonesLost],
         'isPolicia': current_user.ispolicia
     }
 
@@ -88,8 +103,26 @@ def get_profile():
 @jwt_required()
 @cross_origin()
 def get_lost_phones():
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
+
+    if not current_user.isPolicia:
+        return jsonify({'error': 'Usuario não é policial'}), 401
 
     phones = Phone.query.filter_by(is_lost = True)
+    return jsonify(phones), 200
+
+@user_routes.route('/phone/founds', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def get_lost_phones():
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
+
+    if not current_user.isPolicia:
+        return jsonify({'error': 'Usuario não é policial'}), 401
+
+    phones = Phone.query.filter_by(is_found = True)
     return jsonify(phones), 200
 
 @user_routes.route('/profile', methods=['PUT'])
