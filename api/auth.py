@@ -48,6 +48,45 @@ def register():
 
     return jsonify({'message': 'Confirmation code sent to your email'}), 201
 
+@auth_routes.route('/register/policia', methods=['POST'])
+@cross_origin()
+def register_policia():
+    data = request.get_json()
+
+    # Extract user data from request
+    cpf = data.get('cpf')
+    full_name = data.get('full_name')
+    date_of_birth = data.get('date_of_birth')
+    address = data.get('address')
+    email = data.get('email')
+    password = data.get('password')
+
+    # Check if CPF and email are valid
+    if not is_valid_cpf(cpf):
+        return jsonify({'error': 'Invalid CPF'}), 400
+    if not is_valid_email(email):
+        return jsonify({'error': 'Invalid email'}), 400
+
+    # Check if CPF and email are already registered
+    if User.query.filter_by(cpf=cpf).first():
+        return jsonify({'error': 'CPF already registered'}), 400
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already registered'}), 400
+
+    # Generate confirmation code
+    confirmation_code = generate_confirmation_code()
+
+    # Create new user
+    user = User(cpf=cpf, full_name=full_name, date_of_birth=date_of_birth,
+                address=address, email=email, password=password, confirmation_code=confirmation_code, ispolicia=True)
+    db.session.add(user)
+    db.session.commit()
+
+    # Send confirmation email
+    send_confirmation_email(email, confirmation_code)
+
+    return jsonify({'message': 'Confirmation code sent to your email'}), 201
+
 @auth_routes.route('/confirm', methods=['POST'])
 @cross_origin()
 def confirm_registration():

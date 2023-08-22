@@ -13,6 +13,8 @@ class User(db.Model):
     confirmation_code = db.Column(db.String(4), nullable=True)
     confirmed = db.Column(db.Boolean, default=False)
     phones = db.relationship('Phone', backref='user', lazy=True)
+    ispolicia = db.Column(db.Boolean, default=False)
+
 
 class Phone(db.Model):
     __tablename__ = 'phone'
@@ -22,5 +24,7 @@ class Phone(db.Model):
     number1 = db.Column(db.String(20), unique=True, nullable=False)
     number2 = db.Column(db.String(20), unique=True, nullable=False)
     is_lost = db.Column(db.Boolean, default=False)
+    is_found = db.Column(db.Boolean, default=False)
+    boletim = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     model = db.Column(db.String(100))

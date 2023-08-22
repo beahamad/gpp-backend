@@ -66,6 +66,16 @@ def get_profile():
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
 
+
+    phones = current_user.phones
+
+    phonesLost = []
+
+    for phone in phones:
+        if phone.is_lost:
+            phonesLost.append(phone)
+
+
     profile_data = {
         'cpf': current_user.cpf,
         'full_name': current_user.full_name,
@@ -78,10 +88,71 @@ def get_profile():
             'number2': phone.number2,
             'is_lost': phone.is_lost,
             'model': phone.model
-        } for phone in current_user.phones]
+        } for phone in phones],
+        'lostPhones': [{
+            'imei': phone.imei,
+            'number1': phone.number1,
+            'number2': phone.number2,
+            'is_lost': phone.is_lost,
+            'model': phone.model
+        }for phone in phonesLost],
+        'isPolicia': current_user.ispolicia
     }
 
     return jsonify(profile_data), 200
+
+@user_routes.route('/phone/losts', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def get_lost_phones():
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
+
+    if not current_user.ispolicia:
+        return jsonify({'error': 'Usuario não é policial'}), 401
+
+    phones = Phone.query.filter_by(is_lost = True).all()
+    phone_list = []
+
+    for phone in phones:
+        phone_data = {
+            'imei': phone.imei,
+            'number1': phone.number1,
+            'number2': phone.number2,
+            'model': phone.model
+        } 
+        phone_list.append(phone_data)
+
+
+
+    return jsonify(phone_list), 200
+
+@user_routes.route('/phone/founds', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def get_found_phones():
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
+
+    if not current_user.ispolicia:
+        return jsonify({'error': 'Usuario não é policial'}), 401
+
+    phones = Phone.query.filter_by(is_found = True).all()
+    phone_list = []
+
+    for phone in phones:
+        phone_data = {
+            'imei': phone.imei,
+            'number1': phone.number1,
+            'number2': phone.number2,
+            'model': phone.model
+        } 
+        phone_list.append(phone_data)
+
+
+
+    return jsonify(phone_list), 200
+
 
 @user_routes.route('/profile', methods=['PUT'])
 @jwt_required()
@@ -120,6 +191,7 @@ def mark_phone_as_lost():
 
     # Extract phone IMEI
     imei = data.get('imei')
+    boletim = data.get('boletim')
 
     # Find phone by IMEI and associated with the current user
     phone = Phone.query.filter_by(imei=imei, user=current_user).first()
@@ -129,9 +201,91 @@ def mark_phone_as_lost():
 
     # Mark phone as lost
     phone.is_lost = True
+    phone.boletim = boletim
     db.session.commit()
 
-    return jsonify({'message': 'Phone marked as lost'}), 200
+    msg = ""
+    if boletim:
+        msg = "Phone marked as lost and report was registered"
+    else:
+        msg = "Phone marked as lost and report was not registered"
+
+    return jsonify({'message': msg}), 200
+
+@user_routes.route('/phone/report', methods=['POST'])
+@cross_origin()
+@jwt_required()
+def register_boletim():
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
+
+    data = request.get_json()
+
+    # Extract phone IMEI
+    imei = data.get('imei')
+
+    # Find phone by IMEI and associated with the current user
+    phone = Phone.query.filter_by(imei=imei, user=current_user).first()
+
+    if not phone:
+        return jsonify({'error': 'Phone not found'}), 404
+
+    # Mark phone as lost
+    phone.boletim = True
+    db.session.commit()
+
+    msg = "Police report sucesfully registered"
+
+    return jsonify({'message': msg}), 200
+
+
+@user_routes.route('/phone/delicti', methods=['POST'])
+@jwt_required()
+@cross_origin()
+def solicit_corpus_delicti():
+    data = request.get_json()
+
+    # Get the current user address
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
+
+
+    if not current_user.ispolicia:
+        return jsonify({'error': 'Usuario não é policial'}), 401
+    
+
+    address = current_user.address
+
+    # Extract IMEI
+    imei = data.get('imei')
+
+    # Find phone number by IMEI
+    phone_number = Phone.query.filter_by(imei=imei).first()
+
+    if not phone_number:
+        return jsonify({'error': 'Phone number not found'}), 404
+    
+    if not phone_number.boletim:
+        return jsonify({'error': 'Police report not registered'}), 404
+    
+
+    # Retrieve owner's contact information
+    owner = phone_number.user
+    owner_contact = {
+        'full_name': owner.full_name,
+        'email': owner.email
+    }
+
+    recipient_email = owner_contact['email']
+    subject = 'GPP - Sua presença foi solicitada'
+    message = f'Olá, {owner_contact["full_name"]}.\n\nSua presença foi solicitada para realização do procedimento de corpo de delito com relação à perda do ceu celular com o imei {imei}, reportado no boletim de ocorrencia.\Por favor, compareça à delegacia no endereço {address} assim que possível.'
+
+    try:
+        send_email(recipient_email, subject, message)
+        return jsonify({'owner_contact': owner_contact}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 401
+
 
 @user_routes.route('/phone/found', methods=['POST'])
 @jwt_required()
@@ -142,6 +296,12 @@ def report_found_phone():
     # Get the current user address
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
+
+
+    if not current_user.ispolicia:
+        return jsonify({'error': 'Usuario não é policial'}), 401
+    
+
     address = current_user.address
 
     # Extract IMEI
@@ -166,6 +326,9 @@ def report_found_phone():
 
     try:
         send_email(recipient_email, subject, message)
+        phone_number.is_found = True
+        db.session.add(phone_number)
+        db.session.commit()
         return jsonify({'owner_contact': owner_contact}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 401
