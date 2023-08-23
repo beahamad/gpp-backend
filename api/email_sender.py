@@ -2,8 +2,8 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-SENDER_EMAIL = 'gppdb23@outlook.com'
-SENDER_PASSWORD = 'gppDB@24'
+SENDER_EMAIL = 'GuardinhaDoPP@outlook.com'
+SENDER_PASSWORD = 'umaSenhaMuitoBoa123!'
 
 def send_email(recipient_email, subject, message):
     smtp_server = 'smtp-mail.outlook.com'

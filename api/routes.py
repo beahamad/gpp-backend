@@ -23,18 +23,18 @@ def register_phone():
 
     # Check if phone IMEI is valid
     if not imei:
-        return jsonify({'error': 'IMEI is required'}), 400
+        return jsonify({'error': 'IMEI é um campo obrigatório'}), 400
 
     # Check if phone IMEI is already registered
     if Phone.query.filter_by(imei=imei).first():
-        return jsonify({'error': 'IMEI already registered'}), 400
+        return jsonify({'error': 'IMEI já registrado'}), 400
 
     # Create new phone for the user
     phone = Phone(imei=imei, number1=number1, number2=number2, user=current_user, model=model)
     db.session.add(phone)
     db.session.commit()
 
-    return jsonify({'message': 'Phone registered successfully'}), 201
+    return jsonify({'message': 'Aparelho registrado com sucesso!'}), 201
 
 @user_routes.route('/remove/phone', methods=['POST'])
 @jwt_required()
@@ -52,12 +52,12 @@ def remove_phone():
     phone = Phone.query.filter_by(imei=imei, user=current_user).first()
 
     if not phone:
-        return jsonify({'error': 'Phone not found'}), 404
+        return jsonify({'error': 'Aparelho não encontrado'}), 404
 
     db.session.delete(phone)
     db.session.commit()
 
-    return jsonify({'message': 'Phone removed successfully'}), 200
+    return jsonify({'message': 'Aparelho removido com sucesso'}), 200
 
 @user_routes.route('/profile', methods=['GET'])
 @jwt_required()
@@ -178,7 +178,7 @@ def edit_profile():
 
     db.session.commit()
 
-    return jsonify({'message': 'Profile updated successfully'}), 200
+    return jsonify({'message': 'Perfil atualizado com sucesso'}), 200
 
 @user_routes.route('/phone/lost', methods=['POST'])
 @cross_origin()
@@ -197,7 +197,7 @@ def mark_phone_as_lost():
     phone = Phone.query.filter_by(imei=imei, user=current_user).first()
 
     if not phone:
-        return jsonify({'error': 'Phone not found'}), 404
+        return jsonify({'error': 'Aparelho não encontrado'}), 404
 
     # Mark phone as lost
     phone.is_lost = True
@@ -206,9 +206,9 @@ def mark_phone_as_lost():
 
     msg = ""
     if boletim:
-        msg = "Phone marked as lost and report was registered"
+        msg = "Aparelho marcado como perdido e o BO foi registrado"
     else:
-        msg = "Phone marked as lost and report was not registered"
+        msg = "Aparelho marcado como perdido e nenhum BO foi registrado"
 
     return jsonify({'message': msg}), 200
 
@@ -228,13 +228,13 @@ def register_boletim():
     phone = Phone.query.filter_by(imei=imei, user=current_user).first()
 
     if not phone:
-        return jsonify({'error': 'Phone not found'}), 404
+        return jsonify({'error': 'Aparelho não encontrado'}), 404
 
     # Mark phone as lost
     phone.boletim = True
     db.session.commit()
 
-    msg = "Police report sucesfully registered"
+    msg = "Boletim de ocorrência foi registrado com sucesso!"
 
     return jsonify({'message': msg}), 200
 
@@ -263,10 +263,10 @@ def solicit_corpus_delicti():
     phone_number = Phone.query.filter_by(imei=imei).first()
 
     if not phone_number:
-        return jsonify({'error': 'Phone number not found'}), 404
+        return jsonify({'error': 'Aparelho não encontrado'}), 404
     
     if not phone_number.boletim:
-        return jsonify({'error': 'Police report not registered'}), 404
+        return jsonify({'error': 'Boletim de ocorrência não registrado nesse aparelho'}), 404
     
 
     # Retrieve owner's contact information
@@ -311,7 +311,11 @@ def report_found_phone():
     phone_number = Phone.query.filter_by(imei=imei).first()
 
     if not phone_number:
-        return jsonify({'error': 'Phone number not found'}), 404
+        return jsonify({'error': 'Aparelho não encontrado'}), 404
+
+    if phone_number.isfound:
+        return jsonify({'error': 'Aparelho já foi marcado como encontrado'}), 404
+
 
     # Retrieve owner's contact information
     owner = phone_number.user
