@@ -82,7 +82,7 @@ def register_policia():
 
     # Create new user
     user = User(cpf=cpf, full_name=full_name, date_of_birth=date_of_birth,
-                address=address, email=email, password=password, confirmation_code=confirmation_code, ispolicia=True)
+                address=address, email=email, password=password, ispolicia=True, confirmed=True)
     db.session.add(user)
     db.session.commit()
 
