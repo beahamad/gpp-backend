@@ -50,7 +50,7 @@ def register():
     except Exception:
         return jsonify({'error': "Não foi possível enviar o email, tente novamente mais tarde"})
 
-    return jsonify({'message': 'Confirmation code sent to your email'}), 201
+    return jsonify({'message': 'Código de confirmação enviado para seu email'}), 201
 
 @auth_routes.route('/register/policia', methods=['POST'])
 @cross_origin()
@@ -82,19 +82,13 @@ def register_policia():
 
     # Create new user
     user = User(cpf=cpf, full_name=full_name, date_of_birth=date_of_birth,
-                address=address, email=email, password=password, confirmation_code=confirmation_code, ispolicia=True)
+                address=address, email=email, password=password, ispolicia=True, confirmed=True)
     db.session.add(user)
     db.session.commit()
 
     # Send confirmation email
 
-    try:
-        send_confirmation_email(email, confirmation_code)
-
-    except Exception:
-        return jsonify({'error': "Não foi possível enviar o email, tente novamente mais tarde"})
-
-    return jsonify({'message': 'Confirmation code sent to your email'}), 201
+    return jsonify({'message': 'Policial Registrado com sucesso'}), 201
 
 @auth_routes.route('/confirm', methods=['POST'])
 @cross_origin()
@@ -109,7 +103,7 @@ def confirm_registration():
     user = User.query.filter_by(email=email, confirmation_code=confirmation_code).first()
 
     if not user:
-        return jsonify({'error': 'Invalid email or confirmation code'}), 401
+        return jsonify({'error': 'Email ou codigo de confirmação inválidos'}), 401
 
     # Remove confirmation code and mark user as confirmed
     user.confirmation_code = None
@@ -128,10 +122,8 @@ def send_confirmation_email(email, confirmation_code):
     subject = 'GPP - Código de Confirmação'
     message = f'Seu código de confirmação é: {confirmation_code}.'
 
-    try:
-        send_email(email, subject, message)
-    except Exception:
-        return jsonify({'error': "Não foi possível enviar o email, tente novamente mais tarde"})
+    send_email(email, subject, message)
+    return jsonify({'error': "Não foi possível enviar o email, tente novamente mais tarde"})
     
 @auth_routes.route('/login', methods=['POST'])
 @cross_origin()
@@ -145,18 +137,20 @@ def login():
     # Find user by email
     user = User.query.filter_by(email=email).first()
 
+
     # Check if user exists and password is correct
     if not user or user.password != password:
         return jsonify({'error': 'Invalid email or password'}), 401
     
     if not user.confirmed:
+        confirmation_code = user.confirmation_code
         try:
             send_confirmation_email(email, confirmation_code)
 
         except Exception:
             return jsonify({'error': "Não foi possível enviar o email, tente novamente mais tarde"})
         
-        return jsonify({'error': 'user not confirmed'}), 401
+        return jsonify({'error': 'Usuário não confirmado'}), 401
         
     # Generate access token
     access_token = create_access_token(identity=user.id)

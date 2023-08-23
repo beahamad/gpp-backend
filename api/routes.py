@@ -197,11 +197,7 @@ def mark_phone_as_lost():
     phone.is_lost = True
     db.session.commit()
 
-    msg = ""
-    if boletim:
-        msg = "Aparelho marcado como perdido e o BO foi registrado"
-    else:
-        msg = "Aparelho marcado como perdido e nenhum BO foi registrado"
+    msg = "Aparelho marcado como perdido"
 
     return jsonify({'message': msg}), 200
 
@@ -216,7 +212,7 @@ def register_boletim():
 
     # Extract phone IMEI
     imei = data.get('imei')
-    id = data.get('id')
+    id = data.get('boletim_id')
 
     # Find phone by IMEI and associated with the current user
     phone = Phone.query.filter_by(imei=imei, user=current_user).first()
@@ -308,7 +304,7 @@ def report_found_phone():
     if not phone_number:
         return jsonify({'error': 'Aparelho não encontrado'}), 404
 
-    if phone_number.isfound:
+    if phone_number.is_found:
         return jsonify({'error': 'Aparelho já foi marcado como encontrado'}), 404
 
 
