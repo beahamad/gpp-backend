@@ -2,8 +2,8 @@ pipeline {
     agent none
 
     environment {
-        PGSQL_PASSWD = sh(script:’sed -n 5p api/dbconfig | cut -d '=' -f 2-’, returnStdout: true).trim()
-        PGSQL_USERNAME = sh(script:’sed -n 4p api/dbconfig | cut -d '=' -f 2-’, returnStdout: true).trim()
+        PGSQL_PASSWD = sh(script:"sed -n 5p api/dbconfig | cut -d '=' -f 2-", returnStdout: true).trim()
+        PGSQL_USERNAME = sh(script:"sed -n 4p api/dbconfig | cut -d '=' -f 2-", returnStdout: true).trim()
     }
 
     stages {
