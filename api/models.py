@@ -22,7 +22,6 @@ class Phone(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     imei = db.Column(db.String(15), unique=True, nullable=False)
     number1 = db.Column(db.String(20), unique=True, nullable=False)
-    number2 = db.Column(db.String(20), unique=True, nullable=False)
     is_lost = db.Column(db.Boolean, default=False)
     is_found = db.Column(db.Boolean, default=False)
     boletim = db.Column(db.Boolean, default=False)

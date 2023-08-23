@@ -18,7 +18,6 @@ def register_phone():
     # Extract phone data from request
     imei = data.get('imei')
     number1 = data.get('number1')
-    number2 = data.get('number2')
     model = data.get('model')
 
     # Check if phone IMEI is valid
@@ -30,7 +29,7 @@ def register_phone():
         return jsonify({'error': 'IMEI já registrado'}), 400
 
     # Create new phone for the user
-    phone = Phone(imei=imei, number1=number1, number2=number2, user=current_user, model=model)
+    phone = Phone(imei=imei, number1=number1, user=current_user, model=model)
     db.session.add(phone)
     db.session.commit()
 
@@ -85,14 +84,12 @@ def get_profile():
         'phones': [{
             'imei': phone.imei,
             'number1': phone.number1,
-            'number2': phone.number2,
             'is_lost': phone.is_lost,
             'model': phone.model
         } for phone in phones],
         'lostPhones': [{
             'imei': phone.imei,
             'number1': phone.number1,
-            'number2': phone.number2,
             'is_lost': phone.is_lost,
             'model': phone.model
         }for phone in phonesLost],
@@ -118,7 +115,6 @@ def get_lost_phones():
         phone_data = {
             'imei': phone.imei,
             'number1': phone.number1,
-            'number2': phone.number2,
             'model': phone.model
         } 
         phone_list.append(phone_data)
@@ -144,7 +140,6 @@ def get_found_phones():
         phone_data = {
             'imei': phone.imei,
             'number1': phone.number1,
-            'number2': phone.number2,
             'model': phone.model
         } 
         phone_list.append(phone_data)
