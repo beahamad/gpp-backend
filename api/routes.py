@@ -1,4 +1,4 @@
-from app import db
+from api import db
 from flask import request, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from email_sender import send_email
