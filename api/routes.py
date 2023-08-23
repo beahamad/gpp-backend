@@ -212,7 +212,7 @@ def register_boletim():
 
     # Extract phone IMEI
     imei = data.get('imei')
-    id = data.get('id')
+    id = data.get('boletim_id')
 
     # Find phone by IMEI and associated with the current user
     phone = Phone.query.filter_by(imei=imei, user=current_user).first()
