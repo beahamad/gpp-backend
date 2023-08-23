@@ -1,6 +1,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import requests
 
 SENDER_EMAIL = 'GuardinhaDoPP@outlook.com'
 SENDER_PASSWORD = 'umaSenhaMuitoBoa123!'
@@ -23,7 +24,7 @@ def send_email(recipient_email, subject, message):
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         server.send_message(msg)
     except Exception as e:
-        raise Exception(f'An error occurred while sending the email: " {str(e)}')
+        raise Exception("Não foi possível enviar o email, tente novamente mais tarde")
     finally:
         server.quit()
 

@@ -25,5 +25,6 @@ class Phone(db.Model):
     is_lost = db.Column(db.Boolean, default=False)
     is_found = db.Column(db.Boolean, default=False)
     boletim = db.Column(db.Boolean, default=False)
+    boletim_id = db.Column(db.String(50), default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     model = db.Column(db.String(100))

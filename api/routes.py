@@ -186,7 +186,6 @@ def mark_phone_as_lost():
 
     # Extract phone IMEI
     imei = data.get('imei')
-    boletim = data.get('boletim')
 
     # Find phone by IMEI and associated with the current user
     phone = Phone.query.filter_by(imei=imei, user=current_user).first()
@@ -196,7 +195,6 @@ def mark_phone_as_lost():
 
     # Mark phone as lost
     phone.is_lost = True
-    phone.boletim = boletim
     db.session.commit()
 
     msg = ""
@@ -218,6 +216,7 @@ def register_boletim():
 
     # Extract phone IMEI
     imei = data.get('imei')
+    id = data.get('id')
 
     # Find phone by IMEI and associated with the current user
     phone = Phone.query.filter_by(imei=imei, user=current_user).first()
@@ -227,6 +226,7 @@ def register_boletim():
 
     # Mark phone as lost
     phone.boletim = True
+    phone.boletim_id = id
     db.session.commit()
 
     msg = "Boletim de ocorrência foi registrado com sucesso!"
@@ -279,7 +279,7 @@ def solicit_corpus_delicti():
         send_email(recipient_email, subject, message)
         return jsonify({'owner_contact': owner_contact}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 401
+        return jsonify({'error': "Não foi possível enviar o email, tente novamente mais tarde"}), 401
 
 
 @user_routes.route('/phone/found', methods=['POST'])
@@ -330,4 +330,4 @@ def report_found_phone():
         db.session.commit()
         return jsonify({'owner_contact': owner_contact}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 401
+        return jsonify({'error': "Não foi possível enviar o email, tente novamente mais tarde"}), 401
