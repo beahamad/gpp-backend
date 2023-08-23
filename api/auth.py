@@ -2,7 +2,7 @@ import random
 from email_sender import send_email
 from flask import jsonify, request, Blueprint
 from flask_jwt_extended import create_access_token
-from app import db
+from api import db
 from models import User
 from utils import is_valid_email, is_valid_cpf
 from flask_cors import cross_origin
