@@ -201,7 +201,9 @@ def mark_phone_as_lost():
     phone.is_lost = True
     db.session.commit()
 
-    return jsonify({'message': 'aparelho marcado como perdido'}), 200
+    msg = "Aparelho marcado como perdido"
+
+    return jsonify({'message': msg}), 200
 
 @user_routes.route('/phone/report', methods=['POST'])
 @cross_origin()
@@ -214,7 +216,7 @@ def register_boletim():
 
     # Extract phone IMEI
     imei = data.get('imei')
-    id = data.get('id')
+    id = data.get('boletim_id')
 
     # Find phone by IMEI and associated with the current user
     phone = Phone.query.filter_by(imei=imei, user=current_user).first()
