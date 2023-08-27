@@ -7,6 +7,7 @@ from models import User
 from utils import is_valid_email, is_valid_cpf
 from flask_cors import cross_origin
 
+
 auth_routes = Blueprint('auth_routes', __name__)
 
 @auth_routes.route('/register', methods=['POST'])
@@ -82,7 +83,7 @@ def register_policia():
 
     # Create new user
     user = User(cpf=cpf, full_name=full_name, date_of_birth=date_of_birth,
-                address=address, email=email, password=password, confirmation_code=confirmation_code, ispolicia=True)
+                address=address, email=email, password=password, confirmation_code=confirmation_code, ispolicia=True, confirmed= True)
     db.session.add(user)
     db.session.commit()
 
@@ -151,7 +152,7 @@ def login():
     
     if not user.confirmed:
         try:
-            send_confirmation_email(email, confirmation_code)
+            send_confirmation_email(email, user.confirmation_code)
 
         except Exception:
             return jsonify({'error': "Não foi possível enviar o email, tente novamente mais tarde"})

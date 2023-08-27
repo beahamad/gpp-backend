@@ -6,6 +6,48 @@ from models import User, Phone
 from flask_cors import cross_origin
 
 user_routes = Blueprint('user_routes', __name__)
+
+@user_routes.route('/profile', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def get_profile():
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
+
+
+    phones = current_user.phones
+
+    phonesLost = []
+
+    for phone in phones:
+        if phone.is_lost:
+            phonesLost.append(phone)
+
+
+    profile_data = {
+        'cpf': current_user.cpf,
+        'full_name': current_user.full_name,
+        'date_of_birth': current_user.date_of_birth.isoformat(),
+        'address': current_user.address,
+        'email': current_user.email,
+        'phones': [{
+            'imei': phone.imei,
+            'number1': phone.number1,
+            'is_lost': phone.is_lost,
+            'model': phone.model
+        } for phone in phones],
+        'lostPhones': [{
+            'imei': phone.imei,
+            'number1': phone.number1,
+            'is_lost': phone.is_lost,
+            'model': phone.model
+        }for phone in phonesLost],
+        'isPolicia': current_user.ispolicia
+    }
+    response = jsonify(profile_data)
+    
+    return response, 200
+
 @user_routes.route('/register/phone', methods=['POST'])
 @jwt_required()
 @cross_origin()
@@ -55,48 +97,10 @@ def remove_phone():
 
     db.session.delete(phone)
     db.session.commit()
-
+   
     return jsonify({'message': 'Aparelho removido com sucesso'}), 200
 
-@user_routes.route('/profile', methods=['GET'])
-@jwt_required()
-@cross_origin()
-def get_profile():
-    current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
 
-
-    phones = current_user.phones
-
-    phonesLost = []
-
-    for phone in phones:
-        if phone.is_lost:
-            phonesLost.append(phone)
-
-
-    profile_data = {
-        'cpf': current_user.cpf,
-        'full_name': current_user.full_name,
-        'date_of_birth': current_user.date_of_birth.isoformat(),
-        'address': current_user.address,
-        'email': current_user.email,
-        'phones': [{
-            'imei': phone.imei,
-            'number1': phone.number1,
-            'is_lost': phone.is_lost,
-            'model': phone.model
-        } for phone in phones],
-        'lostPhones': [{
-            'imei': phone.imei,
-            'number1': phone.number1,
-            'is_lost': phone.is_lost,
-            'model': phone.model
-        }for phone in phonesLost],
-        'isPolicia': current_user.ispolicia
-    }
-
-    return jsonify(profile_data), 200
 
 @user_routes.route('/phone/losts', methods=['GET'])
 @jwt_required()
@@ -197,13 +201,7 @@ def mark_phone_as_lost():
     phone.is_lost = True
     db.session.commit()
 
-    msg = ""
-    if boletim:
-        msg = "Aparelho marcado como perdido e o BO foi registrado"
-    else:
-        msg = "Aparelho marcado como perdido e nenhum BO foi registrado"
-
-    return jsonify({'message': msg}), 200
+    return jsonify({'message': 'aparelho marcado como perdido'}), 200
 
 @user_routes.route('/phone/report', methods=['POST'])
 @cross_origin()
@@ -308,7 +306,7 @@ def report_found_phone():
     if not phone_number:
         return jsonify({'error': 'Aparelho não encontrado'}), 404
 
-    if phone_number.isfound:
+    if phone_number.is_found:
         return jsonify({'error': 'Aparelho já foi marcado como encontrado'}), 404
 
 

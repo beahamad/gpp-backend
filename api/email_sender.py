@@ -1,7 +1,6 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import requests
 
 SENDER_EMAIL = 'GuardinhaDoPP@outlook.com'
 SENDER_PASSWORD = 'umaSenhaMuitoBoa123!'
