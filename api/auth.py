@@ -10,6 +10,11 @@ from flask_cors import cross_origin
 
 auth_routes = Blueprint('auth_routes', __name__)
 
+@auth_routes.route('/', methods=['GET'])
+@cross_origin()
+def test():
+    return 'works'
+
 @auth_routes.route('/register', methods=['POST'])
 @cross_origin()
 def register():
